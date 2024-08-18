@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const SignUp = () => {
   const [user, setUser] = useState({
@@ -11,6 +12,7 @@ const SignUp = () => {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({
@@ -27,6 +29,9 @@ const SignUp = () => {
         setSuccess("Sign up successful! Please log in.");
         setError("");
         setUser({ email: "", password: "", username: "" });
+
+        router.push("/");
+        
       } else {
         setError(response.data.message);
         setSuccess("");
