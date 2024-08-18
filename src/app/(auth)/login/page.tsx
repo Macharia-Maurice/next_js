@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const Login = () => {
   const [user, setUser] = useState({
@@ -10,6 +11,7 @@ const Login = () => {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({
@@ -26,7 +28,9 @@ const Login = () => {
         setSuccess("Login successful!");
         setError("");
         setUser({ email: "", password: "" });
-        // Redirect or perform other actions upon successful login
+
+        router.push("/");
+        
       } else {
         setError(response.data.message);
         setSuccess("");
