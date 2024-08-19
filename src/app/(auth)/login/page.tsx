@@ -23,7 +23,7 @@ const Login = () => {
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/login', user);
+      const response = await axios.post('/api/users/login', user);
       if (response.data.success) {
         setSuccess("Login successful!");
         setError("");
@@ -36,7 +36,7 @@ const Login = () => {
         setSuccess("");
       }
     } catch (err) {
-      setError("An error occurred during login. Please try again.");
+      setError(`An error occurred during login. Please try again: ${err}`);
       setSuccess("");
     }
   };
