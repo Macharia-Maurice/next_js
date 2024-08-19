@@ -24,13 +24,13 @@ const SignUp = () => {
   const onSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/signup', user);
+      const response = await axios.post('/api/users/signup', user);
       if (response.data.success) {
         setSuccess("Sign up successful! Please log in.");
         setError("");
         setUser({ email: "", password: "", username: "" });
 
-        router.push("/");
+        router.push("/login");
         
       } else {
         setError(response.data.message);
