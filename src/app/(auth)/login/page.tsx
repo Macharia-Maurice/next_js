@@ -30,15 +30,28 @@ const Login = () => {
         setUser({ email: "", password: "" });
 
         router.push("/");
+
+      }
+
+    } catch (err: any) {
+      if (err.response) {
+        // Server responded with a status other than 2xx
+        console.log("Server error:", err.response.data.message);
+        setError(err.response.data.message);
+
+      } else if (err.request) {
+        // Request was made but no response was received
+        console.log("Network error:", err.message);
+        setError("Network error: " + err.message);
         
       } else {
-        setError(response.data.message);
-        setSuccess("");
+        // Something happened in setting up the request that triggered an Error
+        console.log("Error:", err.message);
+        setError("An unexpected error occurred: " + err.message);
       }
-    } catch (err) {
-      setError(`An error occurred during login. Please try again: ${err}`);
       setSuccess("");
     }
+
   };
 
   return (
