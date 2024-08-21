@@ -31,13 +31,25 @@ const SignUp = () => {
         setUser({ email: "", password: "", username: "" });
 
         router.push("/login");
-        
-      } else {
-        setError(response.data.message);
-        setSuccess("");
+
       }
-    } catch (err) {
-      setError("An error occurred during sign-up. Please try again.");
+    } catch (err: any) {
+
+      if (err.response) {
+        // Server responded with a status other than 2xx
+        console.log("Server error:", err.response.data.message);
+        setError(err.response.data.message);
+
+      } else if (err.request) {
+        // Request was made but no response was received
+        console.log("Network error:", err.message);
+        setError("Network error: " + err.message);
+
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Error:", err.message);
+        setError("An unexpected error occurred: " + err.message);
+      }
       setSuccess("");
     }
   };
