@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
             password: hashedPassword,
         });
 
-        return NextResponse.json({ success: true, message: 'User registered successfully', userId: newUser._id }, { status: 201 });
+        return NextResponse.json({ success: true, message: 'User registered successfully', "user":newUser }, { status: 201 });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ success: false, message: 'Internal Server Error' }, { status: 500 });
