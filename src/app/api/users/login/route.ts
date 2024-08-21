@@ -11,8 +11,7 @@ export async function POST(request: NextRequest) {
     try {
         await connect();
 
-        const reqBody = await request.json();
-        const { email, password } = reqBody;
+        const { email, password } = await request.json();
 
         if (!email || !password) {
             return NextResponse.json({ success: false, message: "Email and password must provided!" }, { status: 400 });
@@ -28,8 +27,6 @@ export async function POST(request: NextRequest) {
         const token = jwt.sign(
             {
                 id: user._id,
-                username: user.username,
-                email: user.email,
             },
             JWT_SECRET,
             { expiresIn: '1h' }
@@ -48,7 +45,7 @@ export async function POST(request: NextRequest) {
         return response;
 
     } catch (error:any) {
-        console.error(error);
+        console.error("login failed Error: ",error.message);
         return NextResponse.json({ success: false, message: 'Internal Server Error' }, { status: 500 });
     }
 
