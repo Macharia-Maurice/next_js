@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/UserModel";
 import { connect } from "@/dbConfig/dbConfig";
-import { authenticateToken } from "@/helpers/authenticateToken";
 
 export async function GET(request: NextRequest) {
     try {
-        await connect();
 
-        const userId = await authenticateToken(request); // authenticate user
+        // Extract userId from headers set by the middleware
+        const userId = request.headers.get('userId') || '';
+
+        await connect();
 
         const user = await User.findOne({ _id: userId }).
             select("-password");
