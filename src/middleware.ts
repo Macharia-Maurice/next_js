@@ -1,32 +1,80 @@
+// src/middleware.ts
 import { NextResponse, NextRequest } from 'next/server';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
+
+    // Frontend route protection
+    if (path.startsWith('/api')) {
+        return handleApiRoutes(request);
+    } else {
+        return handleFrontendRoutes(request);
+    }
+}
+
+function handleFrontendRoutes(request: NextRequest) {
+    const path = request.nextUrl.pathname;
+
+    // Public paths that don't require authentication
     const isPublicPath = path === '/login' || path === '/signup';
 
     const token = request.cookies.get('token')?.value || '';
 
-    // If the user is authenticated and trying to access a public path, redirect to home
+    // Redirect authenticated users away from public paths
     if (isPublicPath && token) {
         return NextResponse.redirect(new URL('/', request.nextUrl));
     }
 
-    // If the user is not authenticated and trying to access a protected path, redirect to login
+    // Redirect unauthenticated users trying to access protected paths
     if (!isPublicPath && !token) {
         return NextResponse.redirect(new URL('/login', request.nextUrl));
     }
 
-    // Allow the request to proceed if it passes the checks
+    // Allow the request to proceed
     return NextResponse.next();
+}
+
+function handleApiRoutes(request: NextRequest) {
+    const path = request.nextUrl.pathname;
+
+    // Define public API paths that do not require authentication
+    const publicPaths = ['/api/users/login', '/api/users/signup'];
+
+    // Allow requests to public API paths without authentication
+    if (publicPaths.includes(path)) {
+        return NextResponse.next();
+    }
+
+    // Check for JWT in cookies
+    const token = request.cookies.get('token')?.value || '';
+    if (!token) {
+        return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        // Verify JWT
+        const decodedToken: any = jwt.verify(token, JWT_SECRET);
+
+        // Add user ID to headers if token is valid
+        const response = NextResponse.next();
+        response.headers.set('X-User-ID', decodedToken.id);
+        return response;
+    } catch (error) {
+        return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
 }
 
 export const config = {
     matcher: [
         '/',
-        '/profile',
-        '/profile/:id*',
         '/login',
         '/signup',
         '/logout',
+        '/profile',
+        '/profile/:patch*',
+        '/api/:path*',
     ],
 };
