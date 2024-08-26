@@ -18,7 +18,7 @@ function handleFrontendRoutes(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
     // Public paths that don't require authentication
-    const isPublicPath = path === '/login' || path === '/signup';
+    const isPublicPath = path === '/login' || path === '/signup' || path === '/verifyemail';
 
     const token = request.cookies.get('token')?.value || '';
 
@@ -40,7 +40,7 @@ async function handleApiRoutes(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
     // Define public API paths that do not require authentication
-    const publicPaths = ['/api/users/login', '/api/users/signup'];
+    const publicPaths = ['/api/users/login', '/api/users/signup', '/api/users/verifyemail'];
 
     // Allow requests to public API paths without authentication
     if (publicPaths.includes(path)) {
@@ -75,6 +75,7 @@ export const config = {
         '/',
         '/login',
         '/signup',
+        '/verifyemail',
         '/logout',
         '/profile',
         '/profile/:path*',
