@@ -3,6 +3,7 @@ import bcryptjs from 'bcryptjs';
 import { connect } from '@/dbConfig/dbConfig';
 import User from '@/models/UserModel';
 import { validateEmail, validatePassword } from '@/utils/validators';
+import { sendEmail } from '@/helpers/mailer';
 
 export async function POST(request: NextRequest) {
     try {
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
         if (existingUser) {
             return NextResponse.json({ success: false, message: 'User with this email already exists' }, { status: 400 });
         }
-        
+
         // Hash the password
         const hashedPassword = await bcryptjs.hash(password, 10);
 
@@ -41,7 +42,10 @@ export async function POST(request: NextRequest) {
             password: hashedPassword,
         });
 
-        return NextResponse.json({ success: true, message: 'User registered successfully', "user":newUser }, { status: 201 });
+        //send verification email
+        await sendEmail({ email, emailType: "VERIFY", userId: newUser._id })
+
+        return NextResponse.json({ success: true, message: 'User registered successfully', "user": newUser }, { status: 201 });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ success: false, message: 'Internal Server Error' }, { status: 500 });
