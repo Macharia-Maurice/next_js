@@ -1,10 +1,9 @@
-// src/middleware.ts
-import { NextResponse, NextRequest } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
     // Frontend route protection
@@ -37,7 +36,7 @@ function handleFrontendRoutes(request: NextRequest) {
     return NextResponse.next();
 }
 
-function handleApiRoutes(request: NextRequest) {
+async function handleApiRoutes(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
     // Define public API paths that do not require authentication
@@ -55,17 +54,21 @@ function handleApiRoutes(request: NextRequest) {
     }
 
     try {
-        // Verify JWT
-        const decodedToken: any = jwt.verify(token, JWT_SECRET);
+        // Verify JWT using 'jose'
+        const encoder = new TextEncoder();
+        const jwtSecret = encoder.encode(JWT_SECRET);
+        const { payload }: any = await jwtVerify(token, jwtSecret);
 
         // Add user ID to headers if token is valid
         const response = NextResponse.next();
-        response.headers.set('X-User-ID', decodedToken.id);
+        response.headers.set('X-User-ID', payload.id);
         return response;
     } catch (error) {
+        console.error('JWT verification failed:', error);
         return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 }
+
 
 export const config = {
     matcher: [
@@ -74,7 +77,7 @@ export const config = {
         '/signup',
         '/logout',
         '/profile',
-        '/profile/:patch*',
+        '/profile/:path*',
         '/api/:path*',
     ],
 };
