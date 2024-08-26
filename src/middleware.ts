@@ -61,7 +61,7 @@ async function handleApiRoutes(request: NextRequest) {
 
         // Add user ID to headers if token is valid
         const response = NextResponse.next();
-        response.headers.set('X-User-ID', payload.id);
+        response.headers.set('userId', payload.id);
         return response;
     } catch (error) {
         console.error('JWT verification failed:', error);
